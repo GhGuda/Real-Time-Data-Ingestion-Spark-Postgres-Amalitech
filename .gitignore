@@ -1,0 +1,4 @@
+spark_env/
+.spark_env/*
+
+.git/
