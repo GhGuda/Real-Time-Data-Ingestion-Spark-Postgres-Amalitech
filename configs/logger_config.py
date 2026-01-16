@@ -5,6 +5,7 @@ Provides a reusable function to configure application-wide logging.
 """
 
 import logging
+import sys
 
 
 def setup_logger(level=logging.INFO) -> None:
@@ -16,5 +17,6 @@ def setup_logger(level=logging.INFO) -> None:
     """
     logging.basicConfig(
         level=level,
-        format="%(asctime)s | %(levelname)s | %(message)s"
+        format="%(asctime)s | %(levelname)s | %(message)s",
+        stream=sys.stdout
     )

@@ -1,0 +1,137 @@
+# ============================================================
+# Docker Compose file for Real-Time Data Ingestion Pipeline
+#
+# Services:
+# - PostgreSQL: persistent data storage
+# - pgAdmin: database management UI
+# - Spark Master: Spark cluster coordinator
+# - Spark Worker: executes Spark tasks
+# - Spark Job: custom Spark Structured Streaming application
+# ============================================================
+
+services:
+# ------------------------------------------------------------
+# PostgreSQL Database Service
+# ------------------------------------------------------------
+
+  postgresql:
+    image: postgres:15
+    container_name: ecommerce_postgresql
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/postgres_setup.sql:/docker-entrypoint-initdb.d/postgres_setup.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+
+
+# ------------------------------------------------------------
+# pgAdmin (Optional UI for PostgreSQL)
+# ------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: ecommerce_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "8080:80"
+    networks:
+      - ecommerce_network
+    depends_on:
+      - postgresql
+    restart: unless-stopped
+
+
+
+# ------------------------------------------------------------
+# Spark Master Node
+# ------------------------------------------------------------
+  spark-master:
+    image: apache/spark:3.5.1
+    container_name: ecommerce_spark_master
+    environment:
+      SPARK_MODE: master
+      SPARK_USER: spark
+    ports:
+      - "7077:7077"   # Spark master port
+      - "8081:8080"   # Spark web UI
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+
+
+
+# ------------------------------------------------------------
+# Spark Worker Node
+# ------------------------------------------------------------
+  spark-worker:
+    image: apache/spark:3.5.1
+    container_name: ecommerce_spark_worker
+    environment:
+      SPARK_MODE: worker
+      SPARK_MASTER_URL: spark://spark-master:7077
+      SPARK_WORKER_MEMORY: 2G
+      SPARK_WORKER_CORES: 2
+      SPARK_USER: spark
+    depends_on:
+      - spark-master
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+
+
+
+# ------------------------------------------------------------
+# Spark Structured Streaming Job (Custom Application Image)
+# ------------------------------------------------------------
+  spark-job:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.spark-job
+    container_name: ecommerce_spark_job
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SPARK_MASTER_URL: spark://spark-master:7077
+      LOG_LEVEL: INFO
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      spark-master:
+        condition: service_started
+      spark-worker:
+        condition: service_started
+    networks:
+      - ecommerce_network
+    restart: unless-stopped
+
+
+
+
+# ------------------------------------------------------------
+# Named Volumes (Data Persistence)
+# ------------------------------------------------------------
+volumes:
+  postgres_data:
+
+# ------------------------------------------------------------
+# Network (Service Communication)
+# ------------------------------------------------------------
+networks:
+  ecommerce_network:
+    driver: bridge

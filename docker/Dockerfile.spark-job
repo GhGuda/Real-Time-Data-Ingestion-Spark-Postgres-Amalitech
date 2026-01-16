@@ -1,0 +1,49 @@
+# ============================================================
+# Dockerfile.spark-job
+#
+# Custom application image for Spark Structured Streaming job.
+# Built from Python base image to maintain full control over
+# runtime dependencies (Python, Java, Spark libraries).
+# ============================================================
+
+# Base image: lightweight Python runtime
+FROM python:3.11-slim
+
+# Set working directory inside the container
+WORKDIR /app
+
+
+# Install system-level dependencies
+#    - default-jdk: required by Apache Spark (JVM-based)
+#    - gcc/g++: required for compiling some Python packages
+#    - postgresql-client: allows connectivity testing/debugging
+
+RUN apt-get update && apt-get install -y \
+    default-jdk \
+    gcc \
+    g++ \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# Define JAVA_HOME explicitly for Spark
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+
+
+# Copy dependency file first to leverage Docker layer caching
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application source code
+COPY spark_job/ ./spark_job/
+COPY configs/ ./configs/
+COPY generator ./generator
+
+
+# Create directory for streaming input / checkpoints if needed
+RUN mkdir -p /app/data
+
+# Default command: run Spark Structured Streaming job
+CMD ["python", "-m", "spark_job.spark_streaming_to_postgres"]

@@ -7,7 +7,7 @@ add-to-cart actions, and purchases) and writes them to a directory that
 Apache Spark Structured Streaming monitors as a data source.
 """
 
-import json
+import csv
 import logging
 import random
 import time
@@ -70,15 +70,18 @@ def generate_event(record_id: int) -> dict:
 
 def write_event_to_file(event: dict, record_id: int) -> None:
     """
-    Write an event record to a JSON file.
+    Write an event record to a CSV file.
 
     Args:
         event (dict): The event data to write.
         record_id (int): Used to create a unique file name.
     """
-    file_path = f"{OUTPUT_DIR}/event_{record_id}.json"
-    with open(file_path, "w") as file:
-        json.dump(event, file, indent=4)
+    file_path = f"{OUTPUT_DIR}/event_{record_id}.csv"
+    with open(file_path, mode="w", newline="", encoding="utf-8") as file:
+        writer = csv.DictWriter(file, fieldnames=event.keys())
+
+        writer.writeheader()      # write column names
+        writer.writerow(event)    # write data
 
 
 def main() -> None:
