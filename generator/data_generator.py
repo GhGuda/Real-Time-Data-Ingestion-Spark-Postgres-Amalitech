@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # -------------------------------------------------------------------
 # Constants
 # -------------------------------------------------------------------
-OUTPUT_DIR = "data/input"
+OUTPUT_DIR = "data/inputs"
 SLEEP_INTERVAL = 3
 
 USERS = [
@@ -61,10 +61,10 @@ def generate_event(record_id: int) -> dict:
     return {
         "id": record_id,
         "event": random.choice(EVENTS),
-        "user": random.choice(USERS),
+        "user_name": random.choice(USERS),
         "product": random.choice(PRODUCTS),
         "price": round(random.uniform(50, 3000), 2),
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "event_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
 

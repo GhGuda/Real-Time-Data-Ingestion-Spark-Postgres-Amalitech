@@ -56,11 +56,13 @@ def write_to_postgres(batch_df, batch_id):
     Writes a micro-batch DataFrame to PostgreSQL.
     """
     try:
-        if batch_df.count() == 0:
+        record_count = batch_df.count()
+        if record_count == 0:
             logger.info(f"Batch {batch_id} is empty, skipping")
             return
-        
-        logger.info(f"Writing batch {batch_id} with {batch_df.count()} records to PostgreSQL")
+
+        logger.info(f"Writing batch {batch_id} with {record_count} records to PostgreSQL")
+
         
         (batch_df.write
             .format("jdbc")
@@ -71,16 +73,11 @@ def write_to_postgres(batch_df, batch_id):
             .save()
         )
         
-        logger.info(
-            f"DB user={os.getenv('POSTGRES_USER')}, "
-            f"DB password set={bool(os.getenv('POSTGRES_PASSWORD'))}"
-        )
-
-        
         logger.info(f"Successfully wrote batch {batch_id} to PostgreSQL")
     except Exception as e:
-        logger.error(f"Failed to write batch {batch_id} to PostgreSQL: {e}", exc_info=True)
-
+        logger.error(f"Failed to write batch {batch_id}", exc_info=True)
+        
+        
 
 # ------------------------------------------------------------------
 # Main streaming logic
@@ -105,8 +102,9 @@ def main() -> None:
         input_df =(
             spark.readStream
             .schema(event_schema)
-            .option("maxFilesPerTrigger", 10)
-            .csv("./data/inputs")
+            .option("header", "true")
+            .option("maxFilesPerTrigger", 1)
+            .csv("/app/data/inputs")
         )
 
 
@@ -115,10 +113,9 @@ def main() -> None:
         # -------------------------------------------------------------------
         transformed_df = (
             input_df
-            .withColumn("event_time", to_timestamp(col("timestamp")))
-            .drop("timestamp")
-            .withColumnRenamed("user", "user_name")
+            .withColumn("event_time", to_timestamp(col("event_time")))
         )
+
         
         checkpoint_path = "/app/data/checkpoints"
         logger.info(f"Checkpoint location: {checkpoint_path}")

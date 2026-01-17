@@ -1,0 +1,8 @@
+PostgreSQL Connection Details
+----------------------------
+
+Host: postgresql
+Port: 5432
+Database: ecommerce_db
+Username: postgres
+Password: postgres
