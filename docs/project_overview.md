@@ -23,12 +23,12 @@ Each event contains information such as:
 - price
 - event timestamp  
 
-The generated CSV files are saved continuously into an input folder.
+The generated CSV files are saved continuously into an inputs folder.
 
 ---
 
 ### 2. Spark Structured Streaming
-Apache Spark Structured Streaming monitors the input folder for new CSV files.
+Apache Spark Structured Streaming monitors the inputs folder for new CSV files.
 
 As new files appear:
 - Spark reads them as a streaming source
@@ -52,7 +52,7 @@ This allows the streamed data to be queried, verified, and analyzed using SQL.
 The data flows through the system in the following order:
 
 1. Python script generates e-commerce event data as CSV files  
-2. Spark Structured Streaming detects new files in the input directory  
+2. Spark Structured Streaming detects new files in the inputs directory  
 3. Spark processes and transforms the data in real time  
 4. Processed data is written into PostgreSQL  
 5. Data can be viewed and verified using pgAdmin or SQL queries  

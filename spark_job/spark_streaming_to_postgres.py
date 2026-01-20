@@ -56,13 +56,11 @@ def write_to_postgres(batch_df, batch_id):
     Writes a micro-batch DataFrame to PostgreSQL.
     """
     try:
-        record_count = batch_df.count()
-        if record_count == 0:
+        if batch_df.rdd.isEmpty():
             logger.info(f"Batch {batch_id} is empty, skipping")
             return
 
-        logger.info(f"Writing batch {batch_id} with {record_count} records to PostgreSQL")
-
+        logger.info(f"Writing batch {batch_id} to PostgreSQL")
         
         (batch_df.write
             .format("jdbc")
@@ -76,8 +74,10 @@ def write_to_postgres(batch_df, batch_id):
         logger.info(f"Successfully wrote batch {batch_id} to PostgreSQL")
     except Exception as e:
         logger.error(f"Failed to write batch {batch_id}", exc_info=True)
-        
-        
+        raise
+
+
+
 
 # ------------------------------------------------------------------
 # Main streaming logic

@@ -13,7 +13,7 @@ Make sure the following tools are installed on your system:
 - Docker
 - Docker Compose
 - Git
-- Python 3.10+ (optional, for running generator locally)
+- Python 3.10+ (for running generator locally)
 - Web browser (for pgAdmin)
 
 ---
@@ -23,7 +23,7 @@ Make sure the following tools are installed on your system:
 Clone the repository to your local machine:
 
 bash
-git clone [<repository-url>](https://github.com/GhGuda/Real-Time-Data-Ingestion-Spark-Postgres-Amalitech)
+git clone (https://github.com/GhGuda/Real-Time-Data-Ingestion-Spark-Postgres-Amalitech)
 
 cd Real-Time-Data-Ingestion-Spark-Postgres
 
@@ -48,8 +48,10 @@ DATABASE_URL=jdbc:postgresql://postgresql:5432/ecommerce_db?user=postgres&passwo
 
 Run the following command to build and start all services
 
-<!-- T
-his will start:
+docker-compose up --build
+
+<!-- 
+This will start:
 
 PostgreSQL database
 
@@ -95,9 +97,8 @@ Run the data generator as a module to create CSV files
 python -m generator.data_generator
 
 <!--
-The script will continuously generate CSV files in the input directory.
+The script will continuously generate CSV files in the inputs directory.
 -->
-
 
 
 
@@ -105,7 +106,7 @@ The script will continuously generate CSV files in the input directory.
 
 In pgAdmin, run the following SQL query
 
-SELECT * FROM ecommerce_events ORDER BY event_time DESC;
+SELECT * FROM ecommerce_events;
 
 
 <!--

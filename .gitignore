@@ -5,3 +5,5 @@ spark_env/
 
 __pycache__/
 .env
+
+data/

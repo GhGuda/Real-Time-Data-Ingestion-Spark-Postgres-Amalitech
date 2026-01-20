@@ -11,10 +11,10 @@ Verify that the data generator creates CSV files correctly.
 
 **Steps:**
 1. Run the data generator script.
-2. Observe the input directory for new CSV files.
+2. Observe the inputs directory for new CSV files.
 
 **Expected Result:**  
-New CSV files are created at regular intervals.
+New CSV files are created at intervals of 3 seconds.
 
 **Actual Result:**  
 CSV files were successfully generated.

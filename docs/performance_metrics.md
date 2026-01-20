@@ -26,7 +26,7 @@ Latency is the time taken for a generated CSV file to be processed by Spark and 
 - Time when record appears in PostgreSQL
 
 **Observed Latency:**  
-Approximately **2–5 seconds** per file.
+Approximately **3-7 seconds** per file.
 
 **Remarks:**  
 Latency remained stable during continuous streaming.
@@ -43,7 +43,7 @@ Throughput is the number of records processed by the system per unit time.
 - Monitor Spark logs
 
 **Observed Throughput:**  
-- Approximately **10–50 records per minute** (depending on generation rate)
+- Approximately **15–20 records per minute** (depending on generation rate)
 
 **Remarks:**  
 System handled incoming data without backlog.
@@ -82,8 +82,8 @@ No abnormal resource consumption was observed.
 
 | Metric      | Observation            |
 |------------|------------------------|
-| Latency    | 2–5 seconds            |
-| Throughput | 10–50 records/minute   |
+| Latency    | 3–7 seconds            |
+| Throughput | 15–20 records/minute   |
 | Stability  | Stable                 |
 
 ---

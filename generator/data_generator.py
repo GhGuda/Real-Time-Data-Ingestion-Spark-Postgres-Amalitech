@@ -68,15 +68,15 @@ def generate_event(record_id: int) -> dict:
     }
 
 
-def write_event_to_file(event: dict, record_id: int) -> None:
+def write_event_to_file(event: dict, timestamp: int) -> None:
     """
     Write an event record to a CSV file.
 
     Args:
         event (dict): The event data to write.
-        record_id (int): Used to create a unique file name.
+        timestamp (int): Used to create a unique file name.
     """
-    file_path = f"{OUTPUT_DIR}/event_{record_id}.csv"
+    file_path = f"{OUTPUT_DIR}/event_{timestamp}.csv"
     with open(file_path, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=event.keys())
 
@@ -93,8 +93,9 @@ def main() -> None:
 
     while True:
         try:
+            timestamp = int(time.time() * 1000)
             event = generate_event(record_id)
-            write_event_to_file(event, record_id)
+            write_event_to_file(event, timestamp)
 
             logging.info(f"Generated event: {event}")
 
