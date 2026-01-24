@@ -108,10 +108,7 @@ def main() -> None:
     while True:
         try:
             timestamp = int(time.time() * 1000)
-<<<<<<< Updated upstream
-=======
             
->>>>>>> Stashed changes
             event = generate_event(record_id)
             write_event_to_file(event, timestamp)
 
