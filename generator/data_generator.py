@@ -24,8 +24,10 @@ logger = logging.getLogger(__name__)
 # -------------------------------------------------------------------
 # Constants
 # -------------------------------------------------------------------
-OUTPUT_DIR = "data/inputs"
-SLEEP_INTERVAL = 3
+
+OUTPUT_DIR = os.getenv("OUTPUT_DIR", "data/inputs")
+SLEEP_INTERVAL = int(os.getenv("SLEEP_INTERVAL", 3))
+
 
 USERS = [
     "Ama", "Kojo", "Yaw", "Akosua", "Kwame", "Abena",
@@ -66,24 +68,36 @@ def generate_event(record_id: int) -> dict:
         "price": round(random.uniform(50, 3000), 2),
         "event_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
+    
 
 
 def write_event_to_file(event: dict, timestamp: int) -> None:
     """
     Write an event record to a CSV file.
+    
+    Write files atomically using a temporary file and rename,
+    so Spark Structured Streaming never reads partially written files.
 
     Args:
         event (dict): The event data to write.
         timestamp (int): Used to create a unique file name.
     """
-    file_path = f"{OUTPUT_DIR}/event_{timestamp}.csv"
-    with open(file_path, mode="w", newline="", encoding="utf-8") as file:
+    
+    
+    timestamp = int(time.time() * 1000)
+    final_path = os.path.join(OUTPUT_DIR, f"event_{timestamp}.csv")
+    tmp_path = f"{final_path}.tmp"
+    with open(tmp_path, mode="w", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=event.keys())
 
         writer.writeheader()      # write column names
         writer.writerow(event)    # write data
 
-
+    # Atomic rename: Spark sees file only after this
+    os.rename(tmp_path, final_path)
+    
+    
+    
 def main() -> None:
     """
     Main loop that continuously generates and writes e-commerce events.
@@ -94,6 +108,7 @@ def main() -> None:
     while True:
         try:
             timestamp = int(time.time() * 1000)
+            
             event = generate_event(record_id)
             write_event_to_file(event, timestamp)
 
