@@ -4,16 +4,16 @@
 A containerized real-time data ingestion pipeline that simulates e-commerce events, processes them using Apache Spark Structured Streaming, and persists the data into PostgreSQL.
 
 
-# Project Overview
+## Project Overview
 
 This project demonstrates how to build a real-time file-based streaming pipeline using Spark Structured Streaming.
 It simulates continuous user activity events and ingests them into a relational database with proper handling of streaming semantics, checkpointing, and fault tolerance.
 
-# Architecture Overview
+### Architecture Overview
 Data Generator → CSV Files → Spark Structured Streaming → PostgreSQL
 
 
-# Components
+### Components
 
 Data Generator: Simulates real-time e-commerce events
 
@@ -23,7 +23,7 @@ PostgreSQL: Stores ingested events
 
 pgAdmin: Database UI
 
-# Docker & Docker Compose: Container orchestration
+### Docker & Docker Compose: Container orchestration
 
 Tech Stack
 
@@ -37,7 +37,7 @@ Docker & Docker Compose
 
 pgAdmin
 
-# Prerequisites
+### Prerequisites
 
 Ensure the following are installed:
 
@@ -57,12 +57,12 @@ Clone the Repository
 git clone https://github.com/GhGuda/Real-Time-Data-Ingestion-Spark-Postgres-Amalitech
 ```
 
-# Change directory to Real-Time-Data-Ingestion-Spark-Postgres-Amalitech
+### Change directory to Real-Time-Data-Ingestion-Spark-Postgres-Amalitech
 
 ```bash
 cd Real-Time-Data-Ingestion-Spark-Postgres-Amalitech
 ```
-# Environment Variables
+### Environment Variables
 
 Create a .env file in the project root and add:
 
@@ -77,7 +77,7 @@ PGADMIN_DEFAULT_PASSWORD=admin123
 DATABASE_URL=jdbc:postgresql://postgresql:5432/ecommerce_db?user=postgres&password=postgres
 ```
 
-# Start the Services
+### Start the Services
 Build the Containers
 ```bash
 docker-compose build
@@ -95,7 +95,7 @@ Run in Background
 docker-compose up -d
 ```
 
-# This starts:
+### This starts:
 
 PostgreSQL
 
@@ -105,7 +105,7 @@ Spark master & worker
 
 Spark Structured Streaming job
 
-# Generate Streaming Data
+### Generate Streaming Data
 
 Run the data generator locally:
 
@@ -115,7 +115,7 @@ python -m generator.data_generator
 
 The generator continuously creates CSV files in the data/inputs directory, which Spark automatically ingests.
 
-# Access pgAdmin
+### Access pgAdmin
 
 Open your browser:
 
@@ -123,7 +123,7 @@ Open your browser:
 http://localhost:8080
 ```
 
-# Login Credentials
+### Login Credentials
 
 ```bash
 Email: admin@example.com
@@ -143,7 +143,7 @@ Password: postgres
 Database: ecommerce_db
 ```
 
-# Verify Data Ingestion
+### Verify Data Ingestion
 
 Run the following query in pgAdmin:
 
@@ -153,7 +153,7 @@ SELECT * FROM ecommerce_events;
 
 You should see new records appearing as streaming data is generated.
 
-# Spark UI
+### Spark UI
 
 Access the Spark Web UI:
 
@@ -161,7 +161,7 @@ Access the Spark Web UI:
 http://localhost:8081
 ```
 
-# Use this to monitor:
+### Use this to monitor:
 
 Active streaming queries
 
@@ -169,20 +169,20 @@ Micro-batch execution
 
 Input and processed rows
 
-# Stop the Project
+### Stop the Project
 Stop Containers
 
 ```bash
 docker-compose down
 ```
 
-# Stop and Remove Volumes (Clean Reset)
+### Stop and Remove Volumes (Clean Reset)
 
 ```bash
 docker-compose down -v
 ```
 
-# Troubleshooting
+### Troubleshooting
 
 Ensure Docker is running
 
