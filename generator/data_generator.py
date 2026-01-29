@@ -14,7 +14,10 @@ import time
 from datetime import datetime
 import os
 from configs.logger_config import setup_logger
-
+from validation.event_schema_validation import (
+    get_expected_event_schema,
+    validate_event_schema,
+)
 # -------------------------------------------------------------------
 # Logging
 # -------------------------------------------------------------------
@@ -27,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 OUTPUT_DIR = os.getenv("OUTPUT_DIR", "data/inputs")
 SLEEP_INTERVAL = int(os.getenv("SLEEP_INTERVAL", 3))
+EXPECTED_EVENT_SCHEMA = get_expected_event_schema()
 
 
 USERS = [
@@ -50,18 +54,14 @@ EVENTS = [
 # Ensure output directory exists
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def generate_event(record_id: int) -> dict:
+def generate_event() -> dict:
     """
     Generate a single e-commerce event record.
-
-    Args:
-        record_id (int): Unique identifier for the event.
 
     Returns:
         dict: A dictionary representing an e-commerce event.
     """
     return {
-        "id": record_id,
         "event": random.choice(EVENTS),
         "user_name": random.choice(USERS),
         "product": random.choice(PRODUCTS),
@@ -102,19 +102,34 @@ def main() -> None:
     """
     Main loop that continuously generates and writes e-commerce events.
     """
-    record_id = 1
     logging.info("Starting e-commerce data generator...")
 
     while True:
         try:
             timestamp = int(time.time() * 1000)
             
-            event = generate_event(record_id)
+            event = generate_event()
+            
+            
+            # -------------------------------
+            # SCHEMA VALIDATION
+            # -------------------------------
+            is_valid = validate_event_schema(
+                event=event,
+                expected_schema=EXPECTED_EVENT_SCHEMA,
+            )
+
+            if not is_valid:
+                logger.warning(f"Invalid event schema detected. Skipping event: {event}")
+                time.sleep(SLEEP_INTERVAL)
+                continue
+            # -------------------------------
+            
+            
             write_event_to_file(event, timestamp)
 
             logging.info(f"Generated event: {event}")
 
-            record_id += 1
             time.sleep(SLEEP_INTERVAL)
 
         except Exception:

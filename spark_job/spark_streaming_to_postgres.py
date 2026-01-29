@@ -10,6 +10,10 @@ from pyspark.sql.types import (
     StructType, StructField, StringType, 
     IntegerType, DoubleType)
 from pyspark.sql.functions import col, to_timestamp, input_file_name
+from validation.postgres_schema_validation import (
+    get_postgres_events_schema,
+    validate_spark_schema_against_postgres,
+)
 
 from configs.logger_config import setup_logger
 setup_logger()
@@ -24,7 +28,6 @@ logger = logging.getLogger(__name__)
 # Schema Definition
 # -------------------------------------------------------------------
 event_schema = StructType([
-    StructField("id", IntegerType(), True),
     StructField("event", StringType(), True),
     StructField("user_name", StringType(), True),
     StructField("product", StringType(), True),
@@ -46,7 +49,7 @@ logger.info("PostgreSQL connection URL loaded from environment")
 POSTGRES_PROPERTIES = {
     "driver": "org.postgresql.Driver"
 }
-
+postgres_schema = get_postgres_events_schema()
 
 # ------------------------------------------------------------------
 # Write batch to PostgreSQL
@@ -60,6 +63,7 @@ def write_to_postgres(batch_df, batch_id):
             logger.info(f"Batch {batch_id} is empty, skipping")
             return
 
+        validate_spark_schema_against_postgres(batch_df, postgres_schema)
         logger.info(f"Writing batch {batch_id} to PostgreSQL")
         count = batch_df.count()
         

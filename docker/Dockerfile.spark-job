@@ -40,7 +40,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY spark_job/ ./spark_job/
 COPY configs/ ./configs/
 COPY generator ./generator
-
+COPY validation/ ./validation/
+COPY transformations/ ./transformations/
+COPY load/ ./load/
 
 # Create directory for streaming input / checkpoints if needed
 RUN mkdir -p /app/data

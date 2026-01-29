@@ -4,7 +4,8 @@
 -- ============================================================
 
 CREATE TABLE IF NOT EXISTS ecommerce_events (
-    id INTEGER PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
+
 
     event VARCHAR(50) NOT NULL
         CHECK (

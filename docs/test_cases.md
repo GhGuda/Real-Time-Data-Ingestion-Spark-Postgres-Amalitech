@@ -1,151 +1,131 @@
-# Test Cases – Real-Time Data Ingestion Project
+# Test Results – Real-Time Data Ingestion Project
 
-This document describes the manual test cases performed to verify the functionality of the real-time data ingestion pipeline.
+This document presents the results of automated tests executed to validate the correctness and reliability of the Real-Time Data Ingestion pipeline built using Apache Spark Structured Streaming and PostgreSQL.
+
+All tests described below were implemented and executed using `pytest` and Spark in local mode.
 
 ---
 
-## Test Case 1: CSV File Generation
+## Test Case 1: Event Schema Validation  
+**Type:** Automated Unit Test  
 
 **Objective:**  
-Verify that the data generator creates CSV files correctly.
+Verify that generated user events strictly conform to the expected event schema.
 
-**Steps:**
-1. Run the data generator script.
-2. Observe the inputs directory for new CSV files.
+**Test Coverage:**  
+- Valid event schema  
+- Missing required fields  
+- Extra unexpected fields  
+- Incorrect data types  
 
-**Expected Result:**  
-New CSV files are created at intervals of 3 seconds.
+**Test Method:**  
+Pytest unit tests validating event dictionaries against the expected schema.
 
-**Actual Result:**  
-CSV files were successfully generated.
+**Result:**  
+All schema validation tests passed successfully. Invalid events were correctly rejected.
 
 **Status:**  
 ✅ Pass
 
 ---
 
-## Test Case 2: Spark Detects New CSV Files
+## Test Case 2: CSV File Generation  
+**Type:** Automated Unit Test  
 
 **Objective:**  
-Verify that Spark Structured Streaming detects newly added CSV files.
+Verify that event data is correctly written to CSV files.
 
-**Steps:**
-1. Start all Docker services.
-2. Run the data generator.
-3. Monitor Spark logs.
+**Test Coverage:**  
+- CSV file creation  
+- Correct column headers  
+- Correct data row content  
 
-**Expected Result:**  
-Spark detects and processes new CSV files automatically.
+**Test Method:**  
+Pytest unit test using a temporary directory and monkeypatched output path.
 
-**Actual Result:**  
-Spark successfully detected and processed new files.
+**Result:**  
+CSV files were created successfully with valid headers and data.
 
 **Status:**  
 ✅ Pass
 
 ---
 
-## Test Case 3: Data Schema Validation
+## Test Case 3: Spark Detects New CSV Files  
+**Type:** Automated Integration Test (Local Spark)  
 
 **Objective:**  
-Verify that incoming CSV data matches the defined Spark schema.
+Verify that Spark Structured Streaming detects and processes newly added CSV files.
 
-**Steps:**
-1. Check the Spark schema configuration.
-2. Compare with CSV column structure.
+**Test Coverage:**  
+- Spark reads CSV files from an input directory  
+- One micro-batch processes available data  
+- Streaming query terminates correctly after processing  
 
-**Expected Result:**  
-CSV columns match the defined schema without errors.
+**Test Method:**  
+Pytest test using Spark in local mode with `trigger(once=True)` and controlled shutdown.
 
-**Actual Result:**  
-Schema matched successfully.
+**Result:**  
+Spark successfully detected and processed the CSV file.
 
 **Status:**  
 ✅ Pass
 
 ---
 
-## Test Case 4: Data Transformation
+## Test Case 4: Data Transformation Logic  
+**Type:** Automated Unit Test (Spark DataFrame)  
 
 **Objective:**  
-Verify that data transformations (type conversion, column renaming) are applied correctly.
+Verify that data transformations are correctly applied before loading.
 
-**Steps:**
-1. Inspect Spark transformation logic.
-2. Check resulting data written to PostgreSQL.
+**Test Coverage:**  
+- Data type casting (e.g., price to float)  
+- Column selection and ordering  
 
-**Expected Result:**  
-Fields are properly transformed (e.g., timestamps converted correctly).
+**Test Method:**  
+Pytest Spark unit test applying transformation logic to a sample DataFrame.
 
-**Actual Result:**  
-Transformations applied successfully.
+**Result:**  
+All transformations were applied correctly and output schema matched expectations.
 
 **Status:**  
 ✅ Pass
 
 ---
 
-## Test Case 5: Write Data to PostgreSQL
+## Test Case 5: PostgreSQL Write Logic  
+**Type:** Automated Unit Test (Mocked)  
 
 **Objective:**  
-Verify that processed streaming data is written into PostgreSQL.
+Verify that the application attempts to write processed data to PostgreSQL using JDBC.
 
-**Steps:**
-1. Open pgAdmin.
-2. Run a SELECT query on the target table.
+**Test Coverage:**  
+- JDBC write format  
+- Append write mode  
+- Save operation invocation  
 
-**Expected Result:**  
-New records appear in the database as streaming continues.
+**Test Method:**  
+Pytest unit test using mocked Spark DataFrame write operations.
 
-**Actual Result:**  
-Data was written successfully into PostgreSQL.
+**Result:**  
+The PostgreSQL write logic was invoked with the correct configuration.
 
 **Status:**  
 ✅ Pass
 
 ---
 
-## Test Case 6: Continuous Streaming
+## Overall Test Summary
 
-**Objective:**  
-Verify that the system continuously processes incoming data.
-
-**Steps:**
-1. Keep the generator running.
-2. Monitor PostgreSQL table updates.
-
-**Expected Result:**  
-Database table updates continuously without stopping.
-
-**Actual Result:**  
-Streaming pipeline ran continuously as expected.
-
-**Status:**  
-✅ Pass
-
----
-
-## Test Case 7: Error Handling
-
-**Objective:**  
-Verify system behavior when no new files are available.
-
-**Steps:**
-1. Stop the data generator.
-2. Observe Spark logs.
-
-**Expected Result:**  
-Spark continues running without crashing.
-
-**Actual Result:**  
-Spark remained active and stable.
-
-**Status:**  
-✅ Pass
+- Total Automated Tests Executed: **5**
+- All tests passed successfully
+- No end-to-end database ingestion test was performed
 
 ---
 
 ## Conclusion
 
-All test cases passed successfully.  
-The system meets the functional requirements for real-time data ingestion using Spark Structured Streaming and PostgreSQL.
+The implemented automated tests validate the core logic of the real-time data ingestion pipeline, including schema validation, file generation, Spark ingestion behavior, data transformation, and database write intent.
+
+End-to-end database ingestion testing can be added in future work if required.
